@@ -127,5 +127,5 @@ func main() {
 	}
 
 	time.Sleep(duration)
-	color.Blue.Println("\nSucces to Broadcast => atomic.LoadUint64(&reqCount)", "requests in", time.Since(start))
+	color.Blue.Println("\nSucces to Broadcast => atomic.LoadUint64(reqCount)", "requests in", time.Since(start))
 }
