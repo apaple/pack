@@ -111,10 +111,8 @@ func main() {
         }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
     }
         // Update the atomic counter for successful requests
-        atomic.AddInt32(&totalSuccess, 1)
+        atomic.AddInt32(&totalSuccess, 1000)
 
-        // Output the total number of successful requests using atomic operation
-        fmt.Println("Total successful requests:", atomic.LoadInt32(&totalSuccess)) // Read the atomic counter value
 
 
         // Menunda sebelum request berikutnya (misalnya, 5 detik)
