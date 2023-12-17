@@ -72,7 +72,6 @@ func main() {
         // Menjalankan request dengan klien HTTP yang sudah disiapkan
         resp, err := client.Do(req)
         if err != nil {
-            fmt.Println("Error making request with proxy", proxyURL.String(), ":", err)
             continue
         }
         defer resp.Body.Close()
@@ -81,6 +80,6 @@ func main() {
         fmt.Println("Request successful with proxy", proxyURL.String())
 
         // Menunda sebelum request berikutnya (misalnya, 5 detik)
-        time.Sleep(1 * time.Nanosecond)
+        time.Sleep(1 * time.Microsecond)
     }
 }
