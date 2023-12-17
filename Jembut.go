@@ -107,6 +107,6 @@ func main() {
             fmt.Println("Request successful with proxy", proxyURL.String())
         }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
     }
-    time.Sleep(3 * time.Second)
+    time.Sleep(300 * time.Second)
 }
 
