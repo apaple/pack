@@ -98,10 +98,7 @@ func main() {
 
     // Loop melalui daftar proxyURLs dan membuat request dengan menggunakan masing-masing proxy
     for _, proxyURL := range proxyURLs {
-        // Mengacak urutan proxyURLs
-        rand.Shuffle(len(proxyURLs), func(i, j int) {
-            proxyURLs[i], proxyURLs[j] = proxyURLs[j], proxyURLs[i]
-        })
+        go func(proxyURL *url.URL) {
 
         // Membuat transport dengan proxy yang digunakan dalam iterasi saat ini
         transport := &http.Transport{
