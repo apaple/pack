@@ -98,32 +98,28 @@ func main() {
 
     // Loop melalui daftar proxyURLs dan membuat request dengan menggunakan masing-masing proxy
     for _, proxyURL := range proxyURLs {
-        go func(proxyURL *url.URL) {
-
-        // Membuat transport dengan proxy yang digunakan dalam iterasi saat ini
-        transport := &http.Transport{
-            Proxy: http.ProxyURL(proxyURL),
-        }
-
-        
-        
-        // Mengatur transport dalam klien HTTP
-        client.Transport = transport
-
-        // Menjalankan request dengan klien HTTP yang sudah disiapkan
-        resp, err := client.Do(req)
-        if err != nil {
-            continue
-        }
-        defer resp.Body.Close()
+        go func(proxyURL *url.URL) { // Menggunakan goroutine untuk menjalankan setiap request secara paralel
+            transport := &http.Transport{
+                Proxy: http.ProxyURL(proxyURL),
+            }
+            client := &http.Client{
+                Timeout:   3500 * time.Millisecond,
+                Transport: transport,
+            }
+            resp, err := client.Do(req)
+            if err != nil {
+                return
+            }
+            defer resp.Body.Close()
+            fmt.Println("Request successful with proxy", proxyURL.String())
+        }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
+    }
         // Update the atomic counter for successful requests
         atomic.AddInt32(&totalSuccess, 1)
 
         // Output the total number of successful requests using atomic operation
         fmt.Println("Total successful requests:", atomic.LoadInt32(&totalSuccess)) // Read the atomic counter value
 
-        // Mengambil body response atau melakukan operasi lainnya...
-        fmt.Println("Request successful with proxy")
 
         // Menunda sebelum request berikutnya (misalnya, 5 detik)
         time.Sleep(1 * time.Microsecond)
