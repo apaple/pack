@@ -7,12 +7,15 @@ import (
     "net/http"
     "net/url"
     "os"
+    "sync"
     "time"
 )
 
 var (
-    referers     []string
-    totalSuccess int32 
+    referers       []string
+    totalSuccess   int32 
+    allProxiesSent bool
+    mutex          sync.Mutex
 )
 
 func buildblock(size int) (s string) {
@@ -21,6 +24,41 @@ func buildblock(size int) (s string) {
         a = append(a, rune(rand.Intn(75)+1555))
     }
     return string(a)
+}
+
+func sendRequest(proxyURL *url.URL, targetURL string) {
+    transport := &http.Transport{
+        Proxy: http.ProxyURL(proxyURL),
+    }
+    client := &http.Client{
+        Timeout:   2000 * time.Millisecond,
+        Transport: transport,
+    }
+    req, err := http.NewRequest("GET", targetURL, nil)
+    if err != nil {
+        fmt.Println("Error creating request:", err)
+        return
+    }
+
+    req.Header.Add("User-Agent", "My-Go-App-User-Agent")
+    req.Header.Add("Pragma", "no-cache")
+    req.Header.Add("Cache-Control", "no-store, no-cache")
+    req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+    req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+    req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+    req.Header.Set("sec-fetch-site", "cross-site")
+    req.Header.Set("Referer", referers[rand.Intn(len(referers))]+buildblock(rand.Intn(5)+5))
+    req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
+    req.Header.Set("Connection", "keep-alive")
+
+    resp, err := client.Do(req)
+    if err != nil {
+        fmt.Println("Error sending request:", err)
+        return
+    }
+    defer resp.Body.Close()
+    fmt.Println("Request successful with proxy", proxyURL.String())
+    atomic.AddInt32(&totalSuccess, 1)
 }
 
 func main() {
@@ -70,44 +108,29 @@ func main() {
         os.Exit(1)
     }
 
-
-    // Membuat request dengan header khusus
-    req, err := http.NewRequest("GET", targetURL, nil)
-    if err != nil {
-        fmt.Println("Error creating request:", err)
-        return
-    }
-
-    req.Header.Add("User-Agent", "My-Go-App-User-Agent")
-    req.Header.Add("Pragma", "no-cache")
-    req.Header.Add("Cache-Control", "no-store, no-cache")
-    req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-    req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-    req.Header.Set("Accept-Encoding", "gzip, deflate, br")
-    req.Header.Set("sec-fetch-site", "cross-site")
-    req.Header.Set("Referer", referers[rand.Intn(len(referers))]+buildblock(rand.Intn(5)+5))
-    req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
-    req.Header.Set("Connection", "keep-alive")
-
     rand.Seed(time.Now().UnixNano()) // Untuk mengacak proxy
 
-    // Loop melalui daftar proxyURLs dan membuat request dengan menggunakan masing-masing proxy
-    for _, proxyURL := range proxyURLs {
-        go func(proxyURL *url.URL) { // Menggunakan goroutine untuk menjalankan setiap request secara paralel
-            transport := &http.Transport{
-                Proxy: http.ProxyURL(proxyURL),
+    for {
+        // Loop melalui daftar proxyURLs dan membuat request dengan menggunakan masing-masing proxy
+        for _, proxyURL := range proxyURLs {
+            if allProxiesSent {
+                break
             }
-            client := &http.Client{
-                Timeout:   2000 * time.Millisecond,
-                Transport: transport,
-            }
-            resp, err := client.Do(req)
-            if err != nil {
-                return
-            }
-            defer resp.Body.Close()
-            fmt.Println("Request successful with proxy", proxyURL.String())
-        }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
+
+            go func(proxyURL *url.URL) { // Menggunakan goroutine untuk menjalankan setiap request secara paralel
+                sendRequest(proxyURL, targetURL)
+                checkAllProxiesSent(len(proxyURLs))
+            }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
+        }
+        time.Sleep(300 * time.Second)
     }
-    time.Sleep(300 * time.Second)
+}
+func checkAllProxiesSent(totalProxies int) {
+    mutex.Lock()
+    defer mutex.Unlock()
+
+    if totalSuccess >= int32(totalProxies) {
+        allProxiesSent = true
+        totalSuccess = 0 // Reset totalSuccess untuk iterasi berikutnya
+    }
 }
