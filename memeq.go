@@ -6,12 +6,14 @@ import (
     "math/rand"
     "net/http"
     "net/url"
+    "sync/atomic"
     "os"
     "time"
 )
 
 var (
     referers     []string
+    totalSuccess int32 
 )
 
 func buildblock(size int) (s string) {
@@ -117,9 +119,14 @@ func main() {
             continue
         }
         defer resp.Body.Close()
+        // Update the atomic counter for successful requests
+        atomic.AddInt32(&totalSuccess, 1)
+
+        // Output the total number of successful requests using atomic operation
+        fmt.Println("Total successful requests:", atomic.LoadInt32(&totalSuccess)) // Read the atomic counter value
 
         // Mengambil body response atau melakukan operasi lainnya...
-        fmt.Println("Request successful with proxy", proxyURL.String())
+        fmt.Println("Request successful with proxy")
 
         // Menunda sebelum request berikutnya (misalnya, 5 detik)
         time.Sleep(1 * time.Microsecond)
