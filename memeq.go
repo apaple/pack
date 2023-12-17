@@ -55,7 +55,7 @@ func sendRequest(proxyURL *url.URL, targetURL string) {
     resp, err := client.Do(req)
     if err != nil {
         fmt.Println("Error sending request:", err)
-        return
+        continue
     }
     defer resp.Body.Close()
     fmt.Println("Request successful with proxy", proxyURL.String())
