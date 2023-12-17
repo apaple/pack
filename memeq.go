@@ -10,6 +10,16 @@ import (
     "time"
 )
 
+var (
+
+func buildblock(size int) (s string) {
+    var a []rune
+    for i := 0; i < size; i++ {
+        a = append(a, rune(rand.Intn(75)+1555))
+    }
+    return string(a)
+}
+
 func main() {
     // Pastikan terdapat argumen baris perintah yang diberikan
     if len(os.Args) < 2 {
