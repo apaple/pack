@@ -40,7 +40,9 @@ func main() {
     }
 
     // Membuat klien HTTP dengan transport yang sudah disetel dengan proxy
-    client := &http.Client{}
+    client := &http.Client{
+        Timeout: 3500 * time.Millisecond,
+    }
 
     // Membuat request dengan header khusus
     req, err := http.NewRequest("GET", targetURL, nil)
