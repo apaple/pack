@@ -11,6 +11,8 @@ import (
 )
 
 var (
+    referers     []string
+)
 
 func buildblock(size int) (s string) {
     var a []rune
