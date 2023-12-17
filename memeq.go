@@ -81,6 +81,6 @@ func main() {
         fmt.Println("Request successful with proxy", proxyURL.String())
 
         // Menunda sebelum request berikutnya (misalnya, 5 detik)
-        time.Sleep(500 * time.Nanosecond)
+        time.Sleep(1 * time.Nanosecond)
     }
 }
