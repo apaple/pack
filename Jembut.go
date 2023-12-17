@@ -96,7 +96,7 @@ func main() {
                 Proxy: http.ProxyURL(proxyURL),
             }
             client := &http.Client{
-                Timeout:   100 * time.Millisecond,
+                Timeout:   100 * time.Second,
                 Transport: transport,
             }
             resp, err := client.Do(req)
