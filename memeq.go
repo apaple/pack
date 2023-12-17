@@ -59,9 +59,9 @@ func main() {
     }
     defer file.Close()
 
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-        referers = append(referers, scanner.Text())
+    refererScanner := bufio.NewScanner(file) // Rename the second scanner variable to refererScanner (different name)
+    for refererScanner.Scan() {
+        referers = append(referers, refererScanner.Text())
     }
 
     if err := scanner.Err(); err != nil {
