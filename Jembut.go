@@ -96,7 +96,7 @@ func main() {
                 Proxy: http.ProxyURL(proxyURL),
             }
             client := &http.Client{
-                Timeout:   2000 * time.Millisecond,
+                Timeout:   100 * time.Millisecond,
                 Transport: transport,
             }
             resp, err := client.Do(req)
@@ -107,6 +107,6 @@ func main() {
             fmt.Println("Request successful with proxy", proxyURL.String())
         }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
     }
-    time.Sleep(300 * time.Second)
+    time.Sleep(50 * time.Second)
 }
 
