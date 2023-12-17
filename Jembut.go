@@ -89,8 +89,6 @@ func main() {
     req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
     req.Header.Set("Connection", "keep-alive")
 
-    rand.Seed(time.Now().UnixNano()) // Untuk mengacak proxy
-
     // Loop melalui daftar proxyURLs dan membuat request dengan menggunakan masing-masing proxy
     for _, proxyURL := range proxyURLs {
         go func(proxyURL *url.URL) { // Menggunakan goroutine untuk menjalankan setiap request secara paralel
@@ -112,4 +110,3 @@ func main() {
     time.Sleep(3 * time.Second)
 }
 
-main()
