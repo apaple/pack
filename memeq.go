@@ -52,7 +52,15 @@ func main() {
     }
 
     req.Header.Add("User-Agent", "My-Go-App-User-Agent")
-    req.Header.Add("X-Custom-Header", "CustomValue")
+    req.Header.Add("Pragma", "no-cache")
+    req.Header.Add("Cache-Control", "no-store, no-cache")
+    req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+    req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+    req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+    req.Header.Set("sec-fetch-site", "cross-site")
+    req.Header.Set("Referer", referers[rand.Intn(len(referers))]+buildblock(rand.Intn(5)+5))
+    req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
+    req.Header.Set("Connection", "keep-alive")
 
     rand.Seed(time.Now().UnixNano()) // Untuk mengacak proxy
 
