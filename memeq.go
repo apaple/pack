@@ -39,6 +39,24 @@ func main() {
         proxyURLs = append(proxyURLs, proxyURL)
     }
 
+        // Baca file referers.txt
+    file, err := os.Open("referers.txt")
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        referers = append(referers, scanner.Text())
+    }
+
+    if err := scanner.Err(); err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+
     // Membuat klien HTTP dengan transport yang sudah disetel dengan proxy
     client := &http.Client{
         Timeout: 3500 * time.Millisecond,
@@ -76,6 +94,8 @@ func main() {
             Proxy: http.ProxyURL(proxyURL),
         }
 
+        
+        
         // Mengatur transport dalam klien HTTP
         client.Transport = transport
 
