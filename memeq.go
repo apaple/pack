@@ -124,4 +124,3 @@ func main() {
         // Menunda sebelum request berikutnya (misalnya, 5 detik)
         time.Sleep(1 * time.Microsecond)
     }
-}
