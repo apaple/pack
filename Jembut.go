@@ -96,11 +96,11 @@ func main() {
                 Proxy: http.ProxyURL(proxyURL),
             }
             client := &http.Client{
-                Timeout:   3500 * time.Millisecond,
+                Timeout:   2000 * time.Millisecond,
                 Transport: transport,
             }
             // Loop untuk mengirim 100 permintaan menggunakan satu proxy
-            for i := 0; i < 100; i++ {
+            for i := 0; i < 200; i++ {
                 resp, err := client.Do(req)
                 if err != nil {
                     continue
