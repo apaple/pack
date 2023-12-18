@@ -48,7 +48,7 @@ func main() {
     }
     defer proxyFile.Close()
 
-    var proxyURLs []*url.URL
+    var proxyURLs [i]*url.URL
     scanner := bufio.NewScanner(proxyFile)
     for scanner.Scan() {
         proxyStr := "http://" + scanner.Text() // Format proxy string
