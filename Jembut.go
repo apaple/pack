@@ -96,15 +96,18 @@ func main() {
                 Proxy: http.ProxyURL(proxyURL),
             }
             client := &http.Client{
-                Timeout:   100 * time.Second,
+                Timeout:   3500 * time.Millisecond,
                 Transport: transport,
             }
-            resp, err := client.Do(req)
-            if err != nil {
-                return
+            // Loop untuk mengirim 100 permintaan menggunakan satu proxy
+            for i := 0; i < 100; i++ {
+                resp, err := client.Do(req)
+                if err != nil {
+                    continue
+                }
+                defer resp.Body.Close()
+                fmt.Println("Request successful with proxy", proxyURL.String(), "Request number", i+1)
             }
-            defer resp.Body.Close()
-            fmt.Println("Request successful with proxy", proxyURL.String())
         }(proxyURL) // Memanggil fungsi goroutine dengan menggunakan proxyURL sebagai argumen
     }
     time.Sleep(50 * time.Second)
