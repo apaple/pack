@@ -1,6 +1,7 @@
+wget https://github.com/doktor83/SRBMiner-Multi/releases/download/2.5.9/SRBMiner-Multi-2-5-9-Linux.tar.gz
 
-wget https://github.com/hellcatz/hminer/releases/download/v0.59.1/hellminer_linux64.tar.gz
+tar -xvf SRBMiner-Multi-2-5-9-Linux.tar.gz
 
-tar xf hellminer_linux64.tar.gz
+cd SRBMiner-Multi-2-5-9
 
-./hellminer -c stratum+tcp://ap.luckpool.net:3956 -u RLNVtg1jXXuRmMkvoi6EcaCFgQzNf5vBew.wrke -p x --cpu 8
+sudo ./SRBMiner-MULTI --disable-gpu --algorithm verushash --pool stratum+tcp://na.luckpool.net:3956 --wallet RLNVtg1jXXuRmMkvoi6EcaCFgQzNf5vBew.Rig001 --password x -t 8
