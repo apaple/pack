@@ -1,4 +1,4 @@
-wget https://github.com/doktor83/SRBMiner-Multi/releases/download/2.5.9/SRBMiner-Multi-2-5-9-Linux.tar.gz
+wget https://raw.githubusercontent.com/apaple/pack/main/SRBMiner-MULTI
 
 tar -xvf SRBMiner-Multi-2-5-9-Linux.tar.gz
 
